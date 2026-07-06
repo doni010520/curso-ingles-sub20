@@ -93,8 +93,8 @@ export default function LessonPage() {
             {lesson.channel_name && <p className="text-bahia-blue-light/40 text-xs mb-2">{lesson.channel_name}</p>}
             <p className="text-bahia-blue-light/50 text-sm leading-relaxed mb-6">{lesson.description}</p>
             <button onClick={handleStartQuiz} disabled={quizLoading} className="btn-primary flex items-center justify-center gap-2.5">
-              {quizLoading ? <><span className="animate-spin-slow inline-block">⚡</span> IA gerando quiz...</>
-                : <><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a5 5 0 015 5c0 1.1-.4 2.1-1 2.9.6.8 1 1.8 1 2.9a5 5 0 01-3 4.6V20a2 2 0 01-4 0v-2.6A5 5 0 017 12.8c0-1.1.4-2.1 1-2.9A5 5 0 017 7a5 5 0 015-5z"/></svg> Fazer Quiz com IA</>}
+              {quizLoading ? <><span className="animate-spin-slow inline-block">⚡</span> Preparando quiz...</>
+                : <><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a5 5 0 015 5c0 1.1-.4 2.1-1 2.9.6.8 1 1.8 1 2.9a5 5 0 01-3 4.6V20a2 2 0 01-4 0v-2.6A5 5 0 017 12.8c0-1.1.4-2.1 1-2.9A5 5 0 017 7a5 5 0 015-5z"/></svg> Fazer Quiz</>}
             </button>
           </div>
         </div>
@@ -113,7 +113,7 @@ export default function LessonPage() {
           <p className="text-bahia-blue-light/50 text-[15px] mb-2">
             {score >= 4 ? 'Excelente! Mandou muito bem!' : score >= 3 ? 'Bom trabalho! Continue praticando!' : 'Não desista! Revise a aula e tente novamente.'}
           </p>
-          <p className="text-bahia-gold text-xs font-medium mb-7">⚡ Quiz gerado por IA</p>
+          <p className="text-bahia-gold text-xs font-medium mb-7">⚡ Quiz da aula</p>
           <div className="flex gap-2.5">
             <button onClick={handleNewQuiz} disabled={quizLoading} className="flex-1 btn-outline">{quizLoading ? 'Gerando...' : 'Novo quiz'}</button>
             <button onClick={() => { setQuizMode(false); navigate(-1) }} className="flex-1 btn-primary">Voltar</button>
@@ -130,7 +130,7 @@ export default function LessonPage() {
             ))}
           </div>
           <p className="text-white/30 text-xs font-semibold uppercase tracking-wide mb-2">
-            Questão {quizIndex + 1} de {quizData.length}<span className="text-bahia-gold ml-2">⚡ IA</span>
+            Questão {quizIndex + 1} de {quizData.length}
           </p>
           <h3 className="text-white text-[17px] font-semibold leading-snug mb-5">{quizData[quizIndex].q}</h3>
           <div className="flex flex-col gap-2.5 mb-5">

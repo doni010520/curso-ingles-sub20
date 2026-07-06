@@ -87,8 +87,8 @@ export async function saveQuizAttempt(userId, lessonId, quizId, score, total, an
 }
 
 export async function generateQuizAI(lesson) {
-  // Chama a Edge Function 'quiz' (Supabase), que fala com a OpenAI
-  // com a API key protegida no servidor. Nunca expõe a key no navegador.
+  // Gera as questões do quiz via Edge Function 'quiz' (Supabase),
+  // com a chave do provedor protegida no servidor.
   const { data, error } = await supabase.functions.invoke('quiz', {
     body: {
       title: lesson.title,
@@ -98,6 +98,6 @@ export async function generateQuizAI(lesson) {
   })
   if (error) throw error
   if (data?.error) throw new Error(data.error)
-  if (!Array.isArray(data?.questions)) throw new Error('Quiz inválido retornado pela IA')
+  if (!Array.isArray(data?.questions)) throw new Error('Não foi possível carregar o quiz')
   return data.questions
 }
