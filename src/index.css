@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg-dark text-white antialiased;
+    min-height: 100vh;
+  }
+  * { box-sizing: border-box; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply w-full py-3.5 rounded-xl font-semibold text-white text-[15px]
+      bg-gradient-to-r from-bahia-blue to-bahia-blue-dark
+      shadow-[0_4px_20px_rgba(0,108,181,0.3)]
+      hover:shadow-[0_6px_28px_rgba(0,108,181,0.4)]
+      transition-all duration-200 disabled:opacity-40 disabled:shadow-none;
+  }
+  .btn-outline {
+    @apply py-3.5 rounded-xl font-semibold text-bahia-blue-light text-sm
+      border border-bahia-blue/30 bg-transparent
+      hover:bg-bahia-blue/10 transition-all duration-200;
+  }
+  .card {
+    @apply bg-bahia-blue/[0.06] border border-bahia-blue/[0.12]
+      rounded-[14px] p-4 transition-all duration-200;
+  }
+  .card-active {
+    @apply border-bahia-blue/25 hover:border-bahia-blue/40;
+  }
+  .tricolor-stripe {
+    @apply flex h-0.5;
+  }
+  .tricolor-stripe > :nth-child(1) { @apply flex-1 bg-bahia-blue; }
+  .tricolor-stripe > :nth-child(2) { @apply flex-1 bg-white; }
+  .tricolor-stripe > :nth-child(3) { @apply flex-1 bg-bahia-red; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow { animation: spin 1s linear infinite; }
