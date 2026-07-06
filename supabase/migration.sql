@@ -37,7 +37,8 @@ create table public.modules (
   created_at timestamptz default now()
 );
 alter table public.modules enable row level security;
-create policy "Anyone authenticated can view modules" on public.modules for select using (auth.role() = 'authenticated');
+-- Curso aberto: leitura publica (sem login)
+create policy "Public read modules" on public.modules for select using (true);
 
 create table public.lessons (
   id serial primary key,
@@ -52,7 +53,7 @@ create table public.lessons (
   created_at timestamptz default now()
 );
 alter table public.lessons enable row level security;
-create policy "Anyone authenticated can view lessons" on public.lessons for select using (auth.role() = 'authenticated');
+create policy "Public read lessons" on public.lessons for select using (true);
 
 create table public.quizzes (
   id serial primary key,
@@ -61,8 +62,8 @@ create table public.quizzes (
   generated_at timestamptz default now()
 );
 alter table public.quizzes enable row level security;
-create policy "Anyone authenticated can view quizzes" on public.quizzes for select using (auth.role() = 'authenticated');
-create policy "Anyone authenticated can insert quizzes" on public.quizzes for insert with check (auth.role() = 'authenticated');
+create policy "Public read quizzes" on public.quizzes for select using (true);
+create policy "Public insert quizzes" on public.quizzes for insert with check (true);
 
 create table public.quiz_attempts (
   id serial primary key,
