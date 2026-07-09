@@ -133,3 +133,46 @@ insert into public.lessons (module_id, title, description, youtube_video_id, cha
   (7, 'At a Restaurant — Conversation', 'Full restaurant conversation. Good for listening and role-play.', 'jTjS59K-jQg', 'Easy English', '8 min', 2),
   (8, 'Football Player Interviews', 'Real football interviews in English. Watch 2-3 and note expressions.', 'dQw4w9WgXcQ', 'English Football Interviews', '10 min', 1),
   (8, 'Professional Self-Introduction', 'Introduce yourself in a professional/interview context.', 'UnEmEbWytI8', 'Arnel''s Everyday English', '10 min', 2);
+
+-- ============================================
+-- TURMAS (multi-nível) — rode APÓS o seed acima
+-- ============================================
+create table if not exists public.turmas (
+  id serial primary key,
+  slug text unique not null,
+  name text not null,
+  subtitle text,
+  sort_order int not null default 0,
+  created_at timestamptz default now()
+);
+alter table public.turmas enable row level security;
+create policy "Public read turmas" on public.turmas for select using (true);
+
+insert into public.turmas (id, slug, name, subtitle, sort_order) values
+  (1, 'sub-20',    'Sub-20',           'Modalidade Online', 1),
+  (2, 'sub-16-17', 'Sub-16 / Sub-17',  'Turma combinada',   2),
+  (3, 'sub-14-15', 'Sub-14 / Sub-15',  'Turma combinada',   3)
+on conflict (id) do nothing;
+select setval('turmas_id_seq', 3);
+
+-- liga o seed acima (Sub-20) e duplica o conteúdo para as demais turmas
+alter table public.modules add column if not exists turma_id int references public.turmas(id) on delete cascade;
+update public.modules set turma_id = 1 where turma_id is null;
+
+do $$
+declare t int;
+begin
+  foreach t in array array[2,3] loop
+    if not exists (select 1 from public.modules where turma_id = t) then
+      insert into public.modules (title, week, description, sort_order, is_locked, turma_id)
+      select title, week, description, sort_order, is_locked, t
+      from public.modules where turma_id = 1;
+
+      insert into public.lessons (module_id, title, description, youtube_video_id, youtube_url, channel_name, duration_label, sort_order)
+      select md.id, l.title, l.description, l.youtube_video_id, l.youtube_url, l.channel_name, l.duration_label, l.sort_order
+      from public.lessons l
+      join public.modules m1 on l.module_id = m1.id and m1.turma_id = 1
+      join public.modules md on md.turma_id = t and md.sort_order = m1.sort_order;
+    end if;
+  end loop;
+end $$;
