@@ -1,11 +1,42 @@
 import { supabase } from './supabase'
 
-export async function getModules() {
+export async function getTurmas() {
+  const { data, error } = await supabase
+    .from('turmas')
+    .select('*')
+    .order('sort_order')
+  if (error) throw error
+  return data
+}
+
+export async function getTurmaBySlug(slug) {
+  const { data, error } = await supabase
+    .from('turmas')
+    .select('*')
+    .eq('slug', slug)
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function getModulesByTurma(turmaId) {
   const { data, error } = await supabase
     .from('modules')
     .select('*, lessons(*)')
+    .eq('turma_id', turmaId)
     .order('sort_order')
     .order('sort_order', { referencedTable: 'lessons' })
+  if (error) throw error
+  return data
+}
+
+export async function getModule(moduleId) {
+  const { data, error } = await supabase
+    .from('modules')
+    .select('*, lessons(*)')
+    .eq('id', moduleId)
+    .order('sort_order', { referencedTable: 'lessons' })
+    .single()
   if (error) throw error
   return data
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getModules } from '../lib/api'
+import { getModule } from '../lib/api'
 
 export default function ModulePage() {
   const { moduleId } = useParams()
@@ -11,8 +11,7 @@ export default function ModulePage() {
   useEffect(() => {
     async function load() {
       try {
-        const mods = await getModules()
-        setMod(mods?.find(m => m.id === parseInt(moduleId)))
+        setMod(await getModule(parseInt(moduleId)))
       } catch (err) { console.error(err) }
       setLoading(false)
     }
@@ -25,7 +24,7 @@ export default function ModulePage() {
   return (
     <div className="min-h-screen bg-bg-dark">
       <div className="px-5 py-4 flex items-center gap-3 border-b border-bahia-blue/[0.1]">
-        <button onClick={() => navigate('/')} className="w-[38px] h-[38px] rounded-[10px] bg-bahia-blue/[0.12] flex items-center justify-center text-bahia-blue-light/60">
+        <button onClick={() => navigate(-1)} className="w-[38px] h-[38px] rounded-[10px] bg-bahia-blue/[0.12] flex items-center justify-center text-bahia-blue-light/60">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
         </button>
         <div>
