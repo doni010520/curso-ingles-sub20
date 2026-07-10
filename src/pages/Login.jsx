@@ -50,13 +50,11 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-5 py-10"
-      style={{ background: 'linear-gradient(160deg, #041428 0%, #002b4d 55%, #041428 100%)' }}>
+      style={{ background: "linear-gradient(180deg, rgba(4,20,40,0.72) 0%, rgba(0,43,77,0.86) 55%, rgba(4,20,40,0.97) 100%), url('/bahia-celebra.jpg') center 20%/cover no-repeat" }}>
       <div className="w-full max-w-[400px]">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-3xl"
-            style={{ background: 'radial-gradient(circle at 30% 30%, #1a8cd8, #006CB5 60%, #ED3237 130%)' }}>⚽</div>
-          <h1 className="text-white text-2xl font-bold">Curso de Inglês</h1>
-          <p className="text-bahia-gold text-[13px] font-semibold uppercase tracking-wider mt-1">Modalidade Online</p>
+          <h1 className="text-white text-[28px] font-bold drop-shadow-lg">Curso de Inglês</h1>
+          <p className="text-bahia-gold text-[13px] font-semibold uppercase tracking-wider mt-1">Esporte Clube Bahia · Online</p>
         </div>
 
         <div className="bg-bahia-blue/[0.08] rounded-2xl p-6 border border-bahia-blue/[0.15] backdrop-blur-xl">

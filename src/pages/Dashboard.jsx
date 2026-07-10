@@ -38,7 +38,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-bg-dark">
       <div className="px-5 pt-6 pb-7 border-b border-bahia-blue/[0.12]"
-        style={{ background: 'linear-gradient(145deg, #004d80 0%, #041428 80%, rgba(237,50,55,0.08) 100%)' }}>
+        style={{ background: "linear-gradient(150deg, rgba(0,77,128,0.80) 0%, rgba(4,20,40,0.93) 82%, rgba(237,50,55,0.10) 100%), url('/bahia-hero.jpg') center/cover no-repeat" }}>
         <div className="flex justify-between items-start mb-5">
           <div>
             <p className="text-bahia-gold text-xs font-semibold uppercase tracking-wider mb-1">Turma {turmaName}</p>
