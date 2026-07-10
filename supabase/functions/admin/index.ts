@@ -21,13 +21,26 @@ Deno.serve(async (req) => {
   try {
     const { passcode, action, userId, newPassword } = await req.json()
 
-    const expected = Deno.env.get('ADMIN_PASSCODE')
-    if (!expected || passcode !== expected) return json({ error: 'Senha incorreta' }, 401)
-
     const admin = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
+
+    // Autoriza por: (a) usuário logado com role=admin  OU  (b) senha do painel (reserva)
+    let authorized = false
+    const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '')
+    if (token) {
+      const { data: { user } } = await admin.auth.getUser(token)
+      if (user) {
+        const { data: prof } = await admin.from('profiles').select('role').eq('id', user.id).single()
+        if (prof?.role === 'admin') authorized = true
+      }
+    }
+    if (!authorized) {
+      const expected = Deno.env.get('ADMIN_PASSCODE')
+      if (expected && passcode === expected) authorized = true
+    }
+    if (!authorized) return json({ error: 'Acesso negado' }, 401)
 
     if (action === 'reset') {
       if (!userId || !newPassword || String(newPassword).length < 6) {
@@ -42,6 +55,7 @@ Deno.serve(async (req) => {
     const { data: profiles, error: pErr } = await admin
       .from('profiles')
       .select('id, full_name, username, birth_date, recovery_email, role, created_at, turma_id, turmas(name)')
+      .neq('role', 'admin')
       .order('created_at', { ascending: true })
     if (pErr) return json({ error: pErr.message }, 500)
 

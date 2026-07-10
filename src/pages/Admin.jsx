@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../lib/auth'
 
 function idade(nascimento) {
   if (!nascimento) return ''
@@ -17,11 +19,28 @@ function fmtData(iso) {
 }
 
 export default function Admin() {
+  const { profile, loading: authLoading } = useAuth()
+  const navigate = useNavigate()
   const [passcode, setPasscode] = useState('')
   const [authed, setAuthed] = useState(false)
   const [athletes, setAthletes] = useState([])
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+
+  // Se o usuário logado for admin, entra direto (sem senha do painel)
+  useEffect(() => {
+    if (authed || profile?.role !== 'admin') return
+    ;(async () => {
+      setBusy(true)
+      try {
+        const data = await call({ action: 'list' })
+        setAthletes(data.athletes || [])
+        setAuthed(true)
+      } catch (err) { setError(err.message) }
+      setBusy(false)
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile])
 
   async function call(body) {
     const { data, error } = await supabase.functions.invoke('admin', { body })
@@ -77,6 +96,10 @@ export default function Admin() {
     URL.revokeObjectURL(url)
   }
 
+  if (authLoading || (profile?.role === 'admin' && !authed)) {
+    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin-slow text-3xl">⚽</div></div>
+  }
+
   if (!authed) {
     return (
       <div className="min-h-screen flex items-center justify-center px-5" style={{ background: 'linear-gradient(160deg, #041428, #002b4d)' }}>
@@ -100,6 +123,7 @@ export default function Admin() {
           <p className="text-bahia-blue-light/50 text-sm">{athletes.length} atleta(s)</p>
         </div>
         <div className="flex gap-2.5">
+          {profile?.role === 'admin' && <button onClick={() => navigate('/')} className="btn-outline px-4">← Curso</button>}
           <button onClick={recarregar} disabled={busy} className="btn-outline px-4">{busy ? '...' : 'Atualizar'}</button>
           <button onClick={exportarCSV} className="btn-primary px-4">Exportar CSV</button>
         </div>
