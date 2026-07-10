@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getLesson, generateQuizAI, getCachedQuiz, saveQuiz } from '../lib/api'
+import { useAuth } from '../lib/auth'
+import { getLesson, generateQuizAI, getCachedQuiz, saveQuiz, markLessonComplete, saveQuizAttempt } from '../lib/api'
 
 export default function LessonPage() {
   const { lessonId } = useParams()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const [lesson, setLesson] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -22,11 +24,12 @@ export default function LessonPage() {
       try {
         const data = await getLesson(parseInt(lessonId))
         setLesson(data)
+        if (user) setTimeout(() => markLessonComplete(user.id, data.id).catch(() => {}), 5000)
       } catch (err) { console.error(err) }
       setLoading(false)
     }
     load()
-  }, [lessonId])
+  }, [lessonId, user])
 
   async function handleStartQuiz() {
     setQuizLoading(true)
@@ -65,6 +68,10 @@ export default function LessonPage() {
       setQuizIndex(i => i + 1); setSelectedAnswer(null); setShowResult(false)
     } else {
       setQuizFinished(true)
+      if (user) {
+        try { await saveQuizAttempt(user.id, lesson.id, quizId, score, quizData.length, []) }
+        catch (err) { console.error(err) }
+      }
     }
   }
 

@@ -1,25 +1,37 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getModule } from '../lib/api'
+import { useAuth } from '../lib/auth'
+import { getModule, getUserProgress } from '../lib/api'
 
 export default function ModulePage() {
   const { moduleId } = useParams()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const [mod, setMod] = useState(null)
+  const [progress, setProgress] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
       try {
-        setMod(await getModule(parseInt(moduleId)))
+        const [m, prog] = await Promise.all([
+          getModule(parseInt(moduleId)),
+          user ? getUserProgress(user.id) : Promise.resolve([]),
+        ])
+        setMod(m)
+        setProgress(prog || [])
       } catch (err) { console.error(err) }
       setLoading(false)
     }
     load()
-  }, [moduleId])
+  }, [moduleId, user])
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin-slow text-3xl">⚽</div></div>
   if (!mod) return <div className="min-h-screen flex items-center justify-center"><p className="text-white/40">Módulo não encontrado.</p></div>
+
+  const completedSet = new Set(progress.filter(p => p.completed).map(p => p.lesson_id))
+  const quizScores = {}
+  progress.forEach(p => { if (p.best_quiz_score > 0) quizScores[p.lesson_id] = p.best_quiz_score })
 
   return (
     <div className="min-h-screen bg-bg-dark">
@@ -36,24 +48,36 @@ export default function ModulePage() {
       <div className="p-5">
         <h3 className="text-bahia-blue-light/50 text-[13px] font-semibold uppercase tracking-wider mb-3.5">Aulas</h3>
         <div className="flex flex-col gap-2.5">
-          {(mod.lessons || []).map(lesson => (
-            <button key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)}
-              className="card card-active text-left cursor-pointer">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0 bg-bahia-red/[0.15] text-bahia-red">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white text-[15px] font-semibold mb-1">{lesson.title}</p>
-                  <p className="text-bahia-blue-light/50 text-[13px] leading-snug mb-1.5">{lesson.description}</p>
-                  <div className="flex gap-2 flex-wrap">
-                    <span className="bg-white/[0.05] rounded-md px-2 py-0.5 text-[11px] text-white/30 font-medium">▶ {lesson.duration_label || '~10 min'}</span>
-                    {lesson.channel_name && <span className="bg-white/[0.05] rounded-md px-2 py-0.5 text-[11px] text-white/30 font-medium">{lesson.channel_name}</span>}
+          {(mod.lessons || []).map(lesson => {
+            const isDone = completedSet.has(lesson.id)
+            const quizScore = quizScores[lesson.id]
+            return (
+              <button key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)}
+                className={`card card-active text-left cursor-pointer ${isDone ? 'border-bahia-blue/25' : ''}`}>
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0 ${isDone ? 'text-white' : 'bg-bahia-red/[0.15] text-bahia-red'}`}
+                    style={isDone ? { background: 'linear-gradient(135deg, #006CB5, #1a8cd8)', boxShadow: '0 0 12px rgba(0,108,181,0.25)' } : {}}>
+                    {isDone
+                      ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                      : <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white text-[15px] font-semibold mb-1">{lesson.title}</p>
+                    <p className="text-bahia-blue-light/50 text-[13px] leading-snug mb-1.5">{lesson.description}</p>
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="bg-white/[0.05] rounded-md px-2 py-0.5 text-[11px] text-white/30 font-medium">▶ {lesson.duration_label || '~10 min'}</span>
+                      {lesson.channel_name && <span className="bg-white/[0.05] rounded-md px-2 py-0.5 text-[11px] text-white/30 font-medium">{lesson.channel_name}</span>}
+                      {quizScore !== undefined && (
+                        <span className={`rounded-md px-2 py-0.5 text-[11px] font-semibold ${quizScore >= 80 ? 'bg-bahia-blue/[0.15] text-bahia-blue-light' : 'bg-bahia-gold/[0.15] text-bahia-gold'}`}>
+                          Quiz: {quizScore}%
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            )
+          })}
         </div>
       </div>
     </div>
