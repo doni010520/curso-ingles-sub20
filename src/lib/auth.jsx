@@ -9,7 +9,11 @@ const AuthContext = createContext({})
 const USER_DOMAIN = 'alunos.benitechlab.com'
 
 export function normalizeUsername(username) {
-  return String(username || '').trim().toLowerCase().replace(/\s+/g, '')
+  return String(username || '')
+    .normalize('NFD')                 // decompõe o acento (João -> Joa + ˜ + o)
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, '')     // remove acento, espaço e chars inválidos p/ e-mail
+    .replace(/^[._-]+|[._-]+$/g, '')  // sem pontos/traços nas pontas
 }
 export function usernameToEmail(username) {
   return `${normalizeUsername(username)}@${USER_DOMAIN}`
